@@ -3,8 +3,8 @@ from typing import Callable, Optional, cast
 
 import pytest
 from mediascan.genres import Genre
-from mediascan.mediafile import MediaFile
-from mediascan.mediafiles_loader import load_files_yaml
+from mediascan.media_file_data import MediaFileData
+from mediascan.media_files_yaml_file_loader import load_media_files_yaml_file
 
 from mediatest.media_utils import get_all_genre_strings
 
@@ -26,17 +26,17 @@ from mediatest.config import (
 )
 
 
-def load_yaml_media_files() -> list[MediaFile]:
+def load_yaml_media_files() -> list[MediaFileData]:
     if MEDIASCAN_FILES_YAML_PATH is None:
         return []
     try:
-        return load_files_yaml(MEDIASCAN_FILES_YAML_PATH).files
+        return load_media_files_yaml_file(MEDIASCAN_FILES_YAML_PATH).files
     except (FileNotFoundError, OSError):
         return []
 
 
 @pytest.fixture(scope="session")
-def files() -> list[MediaFile]:
+def files() -> list[MediaFileData]:
     return load_yaml_media_files()
 
 
@@ -51,9 +51,7 @@ def media_file_parametrize(func: Callable[..., None]) -> Callable[..., None]:
 
 # Helper fixture to extract individual files from your session fixture
 @pytest.fixture
-def file(
-    request: pytest.FixtureRequest, files: list[MediaFile]
-) -> MediaFile:
+def file(request: pytest.FixtureRequest, files: list[MediaFileData]) -> MediaFileData:
     # request.param will be the index of the file
     index = cast(int, request.param)
     return files[index]
@@ -96,17 +94,17 @@ def test_per_error(error: str):
 
 
 @media_file_parametrize
-def test_mediafile_year_gt_zero(file: MediaFile):
+def test_mediafile_year_gt_zero(file: MediaFileData):
     assert file.year > 0, f"{file.path}"
 
 
 @media_file_parametrize
-def test_mediafile_years_lt_present(file: MediaFile):
+def test_mediafile_years_lt_present(file: MediaFileData):
     assert file.year <= PRESENT_YEAR, f"{file.path}"
 
 
 @media_file_parametrize
-def test_mediafile_size_gt_min(file: MediaFile):
+def test_mediafile_size_gt_min(file: MediaFileData):
     assert file.size >= MINIMUM_FILESIZE, f"{file.path}"
 
 
@@ -118,12 +116,12 @@ def genre_string_to_enum(s: str) -> Optional[Genre]:
 
 
 @media_file_parametrize
-def test_mediafile_allowed_genres(file: MediaFile):
+def test_mediafile_allowed_genres(file: MediaFileData):
     assert file.genre in get_all_genre_strings(), f"{file.path}"
 
 
 @media_file_parametrize
-def test_mediafile_libs_genres_mode_whitelist(file: MediaFile):
+def test_mediafile_libs_genres_mode_whitelist(file: MediaFileData):
     if LIB_GENRES_MODE_BLACKLIST:
         return
     for idx in range(LIB_COUNT):
@@ -135,7 +133,7 @@ def test_mediafile_libs_genres_mode_whitelist(file: MediaFile):
 
 
 @media_file_parametrize
-def test_mediafile_libs_genres_mode_blacklist(file: MediaFile):
+def test_mediafile_libs_genres_mode_blacklist(file: MediaFileData):
     if not LIB_GENRES_MODE_BLACKLIST:
         return
     for idx in range(LIB_COUNT):
@@ -147,17 +145,17 @@ def test_mediafile_libs_genres_mode_blacklist(file: MediaFile):
 
 
 @media_file_parametrize
-def test_mediafile_artist_is_not_empty(file: MediaFile):
+def test_mediafile_artist_is_not_empty(file: MediaFileData):
     assert len(file.artist) > 0, f"{file.path}"
 
 
 @media_file_parametrize
-def test_mediafile_albumartist_is_not_empty(file: MediaFile):
+def test_mediafile_albumartist_is_not_empty(file: MediaFileData):
     assert len(file.albumartist) > 0, f"{file.path}"
 
 
 def test_mediafile_albumartist_same_for_every_track_in_every_album(
-    files: list[MediaFile],
+    files: list[MediaFileData],
 ):
     """
     Different tracks may have different artists e.g. "Dr. Dre feat. Snoop Dog"
@@ -180,7 +178,9 @@ def escape_artist_name(name: str):
     return name.replace(".", "_")
 
 
-def test_mediafile_albumartist_matches_artist_directory_name(files: list[MediaFile]):
+def test_mediafile_albumartist_matches_artist_directory_name(
+    files: list[MediaFileData],
+):
     """
     Different tracks may have different artists e.g. "Dr. Dre feat. Snoop Dog"
     but all tracks under a given artist folder e.g. "Dr_ Dre" should have the same albumartist e.g. "Dr. Dre"
@@ -206,7 +206,7 @@ def run_test_mediafile(tag_type: str, tag_type_2: Optional[str] = None) -> list[
     two albums if the artist is the same for both of them.
     """
     errors: list[str] = []
-    grouped: dict[str, list[MediaFile]] = {}
+    grouped: dict[str, list[MediaFileData]] = {}
     for file in load_yaml_media_files():
         key = str(getattr(file, tag_type)).upper()
         if key in grouped:
