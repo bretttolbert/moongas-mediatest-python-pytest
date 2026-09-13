@@ -4,12 +4,13 @@ A simple way to use PyTest to help you keep your media collections (e.g. mp3 mus
 The idea is to write tests to enforce rules for your media collection. 
 
 - A component of the `moongas` ecosystem of media library tools
-    - [moongas-collection-demo](https://github.com/bretttolbert/moongas-collection-demo) - Example Moongas media collection (metadata only)
-    - [moongas-py-mediaserver](https://github.com/bretttolbert/moongas-py-mediaserver) - Flask Web App to serve Moongas media collections enabling users to browse, search (various streaming services) and (optionally) play local media files
-    - [moongas-py-mediascan](https://github.com/bretttolbert/moongas-py-mediascan) - Python lib for loading Moongas database and Yaml
-    - [moongas-go-mediascan](https://github.com/bretttolbert/moongas-py-mediascan) - Go lib to scan media collections and Moongas Yaml metatadata, outputs Moongas database
-    - [moongas-py-mediatest](https://github.com/bretttolbert/moongas-py-mediatest) - Python tool for enforcing media collection rules (implemented with `pytest`)
-    - [Flask-JSGlue](https://github.com/bretttolbert/Flask-JSGlue) - Dependency of `moongas-py-mediaserver`
+
+- [moongas-py-mediaserver](https://github.com/bretttolbert/moongas-py-mediaserver) [![CI](https://github.com/bretttolbert/moongas-py-mediaserver/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediaserver/actions/workflows/ci.yml) - Flask Web App to serve Moongas media collections enabling users to browse, search (various streaming services) and (optionally) play local media files
+- [moongas-collection-demo](https://github.com/bretttolbert/moongas-collection-demo) [![Run moongas mediatest python tests](https://github.com/bretttolbert/moongas-collection-demo/actions/workflows/test.yml/badge.svg)](https://github.com/bretttolbert/moongas-collection-demo/actions/workflows/test.yml) - Example Moongas media collection (metadata only)
+- [moongas-py-mediascan](https://github.com/bretttolbert/moongas-py-mediascan) [![Python package](https://github.com/bretttolbert/moongas-py-mediascan/actions/workflows/python-package.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediascan/actions/workflows/python-package.yml) - Python package for loading Moongas database and Yaml
+- [moongas-go-mediascan](https://github.com/bretttolbert/moongas-go-mediascan) [![Go CI](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml) - Golang module to scan media collections and Moongas Yaml metatadata, outputs Moongas database
+- [moongas-py-mediatest](https://github.com/bretttolbert/moongas-py-mediatest) [![Python package](https://github.com/bretttolbert/moongas-py-mediatest/actions/workflows/python-package.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediatest/actions/workflows/python-package.yml) - Python tool for enforcing media collection rules (implemented with `pytest`)
+- [Flask-JSGlue](https://github.com/bretttolbert/Flask-JSGlue) [![Test](https://github.com/bretttolbert/Flask-JSGlue/actions/workflows/test.yml/badge.svg)](https://github.com/bretttolbert/Flask-JSGlue/actions/workflows/test.yml) - Dependency of `moongas-py-mediaserver`
 
 ## Installation
 
