@@ -180,19 +180,35 @@ def main() -> int:
     config.configure(config_path)
     logger.info("configure(%s) completed successfully", config_path)
 
-    if config.MEDIATEST_ROOTDIR:
-        rootdir = Path(config.MEDIATEST_ROOTDIR)
-        logger.debug("Resolved mediatest_rootdir from config path: %s", rootdir)
+    if config.MEDIA_ROOTDIR:
+        media_rootdir = Path(config.MEDIA_ROOTDIR)
+        logger.debug("Resolved media_rootdir from config path: %s", media_rootdir)
     else:
-        rootdir = config_path.resolve().parent
+        media_rootdir = config_path.resolve().parent
         logger.debug(
-            "No config path provided for mediatest_rootdir, defaulting to: %s", rootdir
+            "No config path provided for media_rootdir, defaulting to: %s",
+            media_rootdir,
         )
 
-    logger.debug("mediatest_rootdir exists = %s", rootdir.exists())
-    logger.debug("mediatest_rootdir is_dir = %s", rootdir.is_dir())
+    if config.MEDIATEST_ROOTDIR:
+        mediatest_rootdir = Path(config.MEDIATEST_ROOTDIR)
+        logger.debug(
+            "Resolved mediatest_rootdir from config path: %s", mediatest_rootdir
+        )
+    else:
+        mediatest_rootdir = config_path.resolve().parent
+        logger.debug(
+            "No config path provided for mediatest_rootdir, defaulting to: %s",
+            mediatest_rootdir,
+        )
 
-    test_path = rootdir / "tests" / "mediatests"
+    logger.debug("media_rootdir exists = %s", media_rootdir.exists())
+    logger.debug("media_rootdir is_dir = %s", media_rootdir.is_dir())
+
+    logger.debug("mediatest_rootdir exists = %s", mediatest_rootdir.exists())
+    logger.debug("mediatest_rootdir is_dir = %s", mediatest_rootdir.is_dir())
+
+    test_path = mediatest_rootdir / "tests" / "mediatests"
     logger.debug("Computed test_path=%s", test_path)
     logger.debug("test_path exists = %s", test_path.exists())
     logger.debug("test_path is_dir = %s", test_path.is_dir())
@@ -205,7 +221,7 @@ def main() -> int:
     pytest_args = [
         str(test_path),
         "--rootdir",
-        str(rootdir),
+        str(mediatest_rootdir),
         "-o",
         "log_cli=true",
         f"--log-cli-level={log_level_name}",

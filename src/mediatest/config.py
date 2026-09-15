@@ -35,7 +35,7 @@ class MediaTestConfig(YAMLWizard):
     mediascan_files_yaml_path: Optional[str] = None
 
     mediatest_rootdir: Optional[str] = None
-    media_root_dir: Optional[str] = None
+    media_rootdir: Optional[str] = None
 
 
 class MediaTestConfigUtil:
@@ -99,7 +99,7 @@ class MediaTestConfigUtil:
 
 def configure(path: Path | None = None) -> None:
     global CONFIG
-    global MEDIATEST_ROOTDIR
+    global MEDIATEST_ROOTDIR, MEDIA_ROOTDIR
     global MEDIASCAN_FILES_YAML_PATH
     global EXTS_MEDIA, EXTS_ART, EXTS_LYRICS, EXTS_METADATA, EXTS_EXTRA, ALLOWED_EXTS
     global MINIMUM_FILESIZE
@@ -116,6 +116,7 @@ def configure(path: Path | None = None) -> None:
 
     logger.debug("Config object loaded; assigning global configuration values")
     MEDIATEST_ROOTDIR = CONFIG.mediatest_rootdir
+    MEDIA_ROOTDIR = CONFIG.media_rootdir
     MEDIASCAN_FILES_YAML_PATH = CONFIG.mediascan_files_yaml_path
     MINIMUM_FILESIZE = CONFIG.minimum_filesize
     EXTS_MEDIA = CONFIG.exts_media
@@ -126,21 +127,22 @@ def configure(path: Path | None = None) -> None:
     ALLOWED_EXTS = EXTS_MEDIA + EXTS_ART + EXTS_LYRICS + EXTS_METADATA + EXTS_EXTRA
     LIB_GENRES_MODE_BLACKLIST = CONFIG.lib_genres_mode_blacklist
     LIB_COUNT = len(CONFIG.libs)
-    media_root_dir = (
-        Path(CONFIG.media_root_dir).expanduser()
-        if CONFIG.media_root_dir is not None
+
+    media_rootdir = (
+        Path(CONFIG.media_rootdir).expanduser().resolve()
+        if CONFIG.media_rootdir is not None
         else None
     )
-    if media_root_dir is not None:
+    if media_rootdir is not None:
         logger.info(
-            "Resolving library media paths relative to mediaRootDir=%s", media_root_dir
+            "Resolving library media paths relative to mediaRootDir=%s", media_rootdir
         )
     resolved_media_paths: list[str] = []
     for lib in CONFIG.libs:
         media_path = Path(lib.media_path.lstrip("/\\"))
         resolved_media_path = (
-            str(media_root_dir / media_path)
-            if media_root_dir is not None
+            str(media_rootdir / media_path)
+            if media_rootdir is not None
             else lib.media_path
         )
         resolved_media_paths.append(resolved_media_path)
@@ -157,9 +159,10 @@ def configure(path: Path | None = None) -> None:
     LIBS_GENRES = [lib.genres for lib in CONFIG.libs]
 
     logger.info(
-        "configure() completed for %d libraries; mediatest_rootdir=%s mediascan_files_yaml_path=%s minimum_filesize=%s",
+        "configure() completed for %d libraries; mediatest_rootdir=%s media_rootdir=%s mediascan_files_yaml_path=%s minimum_filesize=%s",
         LIB_COUNT,
         MEDIATEST_ROOTDIR,
+        MEDIA_ROOTDIR,
         MEDIASCAN_FILES_YAML_PATH,
         MINIMUM_FILESIZE,
     )

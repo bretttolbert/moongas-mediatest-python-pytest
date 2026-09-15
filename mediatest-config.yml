@@ -1,5 +1,5 @@
 #mediatestRootdir: .
-mediaRootDir: ../moongas-collection-demo
+mediaRootDir: ../
 mediascanFilesYamlPath: ../mediascan-files.yml
 minimumFilesize: 10000
 extsMedia:

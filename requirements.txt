@@ -13,4 +13,4 @@ PyYAML==6.0.3
 six==1.17.0
 SQLAlchemy==2.0.52
 typing_extensions==4.16.0
-mediascan @ git+https://github.com/bretttolbert/moongas-py-mediascan.git
+mediascan>=1.2.1
