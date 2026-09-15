@@ -27,6 +27,10 @@ git clone git@github.com:bretttolbert/moongas-py-mediatest.git && cd mediatest
 python -m pip install -e .
 ```
 
+## Concept
+
+The main (source) entry point of mediatest invokes pytest to run the tests under the `tests/mediatests` path. This allows mediatest to load its Yaml configuration file. 
+
 ## Usage
 
 Modify settings in [mediatest-config.yml](./mediatest-config.yml) as needed, then run `mediatest`:
@@ -35,7 +39,48 @@ Modify settings in [mediatest-config.yml](./mediatest-config.yml) as needed, the
 python -m mediatest mediatest-config.yml
 ```
 
-The main (source) entry point of mediatest invokes pytest to run the tests under the `tests/mediatests` path. This allows mediatest to load its Yaml configuration file. 
+Only test artist.yml:
+
+```bash
+python -m mediatest -k test_media_artist_dirs mediatest-config.yml
+```
+
+## Help
+
+```bash
+$ python -m mediatest --help
+usage: python -m mediatest [-h] [--version] [--log-level LEVEL] [--ignore PATH] [-k EXPRESSION] [-m MARKEXPR] [--lf] [--pdb] [-v] [-s]
+                           [-x] [--ff] [--maxfail NUM] [--durations NUM] [--durations-min SECONDS]
+                           config_path
+
+Run mediatest media tests using the provided config YAML file
+
+positional arguments:
+  config_path           Path to the mediatest config YAML file.
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --log-level LEVEL     Logging level (default: INFO).
+  --ignore PATH         Path to ignore when collecting pytest tests; may be repeated.
+  -k, --keyword EXPRESSION
+                        Only run tests matching the pytest expression.
+  -m MARKEXPR           Only run tests matching the pytest marker expression.
+  --lf, --last-failed   Re-run only tests that failed during the previous execution.
+  --pdb                 Drop into the Python debugger when a test fails.
+  -v, --verbose         Increase pytest output details.
+  -s, --capture=no      Disable pytest output capture.
+  -x, --exitfirst       Stop the test suite after the first failure.
+  --ff, --failed-first  Run previously failed tests first, then the remaining tests.
+  --maxfail NUM         Stop after NUM test failures or errors.
+  --durations NUM       Report the NUM slowest test durations.
+  --durations-min SECONDS
+                        Only report test durations at least SECONDS long.
+
+```
+
+
+## Development
 
 For development purposes, if you just want to run pytest on the internal unit-tests for this package, run pytest with an `--ignore` argument to exclude the `tests/mediatests` path e.g.
 

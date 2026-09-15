@@ -35,6 +35,7 @@ class MediaTestConfig(YAMLWizard):
     mediascan_files_yaml_path: Optional[str] = None
 
     mediatest_rootdir: Optional[str] = None
+    media_root_dir: Optional[str] = None
 
 
 class MediaTestConfigUtil:
@@ -73,9 +74,11 @@ class MediaTestConfigUtil:
 
         logger.debug("Opening config file for parsing: %s", config_path)
         with config_path.open("r", encoding="utf-8") as config_file:
-            config = MediaTestConfig.from_yaml( # pyright: ignore[reportUnknownMemberType]
-                config_file
-            ) 
+            config = (
+                MediaTestConfig.from_yaml(  # pyright: ignore[reportUnknownMemberType]
+                    config_file
+                )
+            )
         if isinstance(config, list):
             logger.debug(
                 "Parsed YAML returned a list with %d item(s); selecting first entry",
@@ -123,7 +126,30 @@ def configure(path: Path | None = None) -> None:
     ALLOWED_EXTS = EXTS_MEDIA + EXTS_ART + EXTS_LYRICS + EXTS_METADATA + EXTS_EXTRA
     LIB_GENRES_MODE_BLACKLIST = CONFIG.lib_genres_mode_blacklist
     LIB_COUNT = len(CONFIG.libs)
-    LIBS_MEDIA_PATH = [lib.media_path for lib in CONFIG.libs]
+    media_root_dir = (
+        Path(CONFIG.media_root_dir).expanduser()
+        if CONFIG.media_root_dir is not None
+        else None
+    )
+    if media_root_dir is not None:
+        logger.info(
+            "Resolving library media paths relative to mediaRootDir=%s", media_root_dir
+        )
+    resolved_media_paths: list[str] = []
+    for lib in CONFIG.libs:
+        media_path = Path(lib.media_path.lstrip("/\\"))
+        resolved_media_path = (
+            str(media_root_dir / media_path)
+            if media_root_dir is not None
+            else lib.media_path
+        )
+        resolved_media_paths.append(resolved_media_path)
+        logger.info(
+            "Resolved library media path: configured=%s resolved=%s",
+            lib.media_path,
+            resolved_media_path,
+        )
+    LIBS_MEDIA_PATH = resolved_media_paths
     LIBS_EXPECTED_MEDIA_COUNT = [lib.expected_media_count for lib in CONFIG.libs]
     LIBS_EXPECTED_LRC_COUNT = [lib.expected_lrc_count for lib in CONFIG.libs]
     LIBS_TOTAL_FILESIZE_LIMIT_GB = [lib.total_filesize_limit_gb for lib in CONFIG.libs]

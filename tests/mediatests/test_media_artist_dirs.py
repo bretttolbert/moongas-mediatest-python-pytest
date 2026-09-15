@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+from mediascan.artist_yaml_file_validator import validate_artist_yaml_file
 from mediatest.config import LIB_COUNT, LIBS_MEDIA_PATH
 from mediatest.path_utils import get_path_depth, is_dir_with_subdirs
 
@@ -9,6 +10,7 @@ Filesystem tests that validate artist directories
 """
 
 # TODO: Write test to find duplicated artists, e.g. "The Dave Matthews Band" vs "Dave Matthews Band"
+
 
 def get_artist_dir_paths(media_lib_path: Path) -> list[Path]:
     ret: set[Path] = set()
@@ -49,3 +51,24 @@ def test_artist_yaml_exists(artist_path: Path):
     """
     artist_yaml_path = Path(artist_path) / "artist.yml"
     assert artist_yaml_path.exists()
+
+
+def test_artist_yaml_is_valid(artist_path: Path):
+    """
+    Verifies that the artist.yml file is valid according to the schema
+    """
+    artist_yaml_path = Path(artist_path) / "artist.yml"
+    artist_yaml_paths = [str(artist_yaml_path)]
+    artists_missing: list[str] = []
+    exceptions: list[tuple[Path, Exception]] = []
+    validate_artist_yaml_file(
+        artist_path.name,
+        artist_path,
+        artist_yaml_paths,
+        artists_missing,
+        exceptions,
+    )
+    assert not exceptions, "Artist YAML validation errors: " + "; ".join(
+        f"{path}: {exception}" for path, exception in exceptions
+    )
+    assert not artists_missing, f"Artists missing artist.yml: {artists_missing}"
