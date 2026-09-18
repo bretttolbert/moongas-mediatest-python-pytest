@@ -225,6 +225,8 @@ def main() -> int:
         "-o",
         "log_cli=true",
         f"--log-cli-level={log_level_name}",
+        "-q",
+        "--show-progress",
     ]
     for ignore_path in args.ignore:
         pytest_args.extend(["--ignore", ignore_path])
