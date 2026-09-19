@@ -13,11 +13,11 @@
 
 ### A component of the `moongas` ecosystem of media library tools
 
+- [moongas-collection-demo](https://github.com/bretttolbert/moongas-collection-demo) [![CI](https://github.com/bretttolbert/moongas-collection-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-collection-demo/actions/workflows/ci.yml) - Example Moongas media collection (metadata only)
 - [moongas-mediatunes-web-vue](https://github.com/bretttolbert/moongas-mediatunes-web-vue) [![CI](https://github.com/bretttolbert/moongas-mediatunes-web-vue/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediatunes-web-vue/actions/workflows/ci.yml) - A Deno-tooled TypeScript/Vue SPA for Moongas hybrid media collections, pairing with the separate moongas-mediatunes-svc-python-blacksheep backend to seemlessly blend offline and streaming playback
 - [moongas-mediatunes-svc-python-blacksheep](https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep) [![CI](https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep/actions/workflows/ci.yml) - Python+BlackSheep API service for Moongas hybrid media collections—backend for Moongas mediatunes web application (moongas-mediatunes-web-vue)
-- [moongas-collection-demo](https://github.com/bretttolbert/moongas-collection-demo) [![CI](https://github.com/bretttolbert/moongas-collection-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-collection-demo/actions/workflows/ci.yml) - Example Moongas media collection (metadata only)
-- [moongas-mediascan-python](https://github.com/bretttolbert/moongas-mediascan-python) [![CI](https://github.com/bretttolbert/moongas-mediascan-python/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediascan-python/actions/workflows/ci.yml) - Python package for loading Moongas database and Yaml
 - [moongas-mediascan-golang](https://github.com/bretttolbert/moongas-mediascan-golang) [![CI](https://github.com/bretttolbert/moongas-mediascan-golang/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediascan-golang/actions/workflows/ci.yml) - Golang module to scan media collections and Moongas Yaml metatadata, outputs Moongas database
+- [moongas-mediascan-python](https://github.com/bretttolbert/moongas-mediascan-python) [![CI](https://github.com/bretttolbert/moongas-mediascan-python/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediascan-python/actions/workflows/ci.yml) - Python package for loading Moongas database and Yaml
 - [moongas-mediatest-python-pytest](https://github.com/bretttolbert/moongas-mediatest-python-pytest) [![CI](https://github.com/bretttolbert/moongas-mediatest-python-pytest/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediatest-python-pytest/actions/workflows/ci.yml) - Python tool for enforcing media collection rules (implemented with `pytest`)
 
 # Quick Start
@@ -25,13 +25,13 @@
 ### (User) Install from GitHub repo
 
 ```bash
-pip install "git+https://github.com/bretttolbert/moongas-py-mediatest.git"
+pip install "git+https://github.com/bretttolbert/moongas-mediatest-python-pytest.git"
 ```
 
 ### (Developer) Clone GitHub repo and install (editable)
 
 ```bash
-git clone git@github.com:bretttolbert/moongas-py-mediatest.git && cd mediatest
+git clone git@github.com:bretttolbert/moongas-mediatest-python-pytest.git && cd mediatest
 python -m pip install -e .
 ```
 
@@ -93,7 +93,7 @@ options:
 For development purposes, if you just want to run pytest on the internal unit-tests for this package, run pytest with an `--ignore` argument to exclude the `tests/mediatests` path e.g.
 
 ```bash
-pytest -vv -s --log-cli-level=DEBUG --ignore tests/media
+python -m pytest -vv -s --log-cli-level=DEBUG --ignore tests/media
 ```
 
 ## Example Test Failure
