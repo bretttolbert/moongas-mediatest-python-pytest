@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/bretttolbert/moongas-mediatunes-web/refs/heads/main/client/public/moongas.svg" width="128" height="128">
+
 # moongas-py-mediatest
 
 > 🚧 **Status: Work in Progress (WIP)**  
@@ -10,8 +12,6 @@
 **Moongas component leveraging pytest to enforce rules on media libraries. A simple way to use PyTest to help you keep your media collections (e.g. mp3 music libraries) organized. The idea is to write tests to enforce rules for your media collection.**
 
 ### A component of the `moongas` ecosystem of media library tools
-
-![Moongas icon](./client/public/moongas.svg)
 
 - [moongas-mediatunes-web](https://github.com/bretttolbert/moongas-mediatunes-web) [![CI](https://github.com/bretttolbert/moongas-py-mediaserver/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediatunes-web/actions/workflows/ci.yml) - A Deno-tooled TypeScript/Vue SPA for Moongas hybrid media collections, pairing with the separate moongas-py-mediatunes-svc backend to seemlessly blend offline and streaming playback
 - [moongas-py-mediatunes-svc](https://github.com/bretttolbert/moongas-py-mediatunes-svc) [![CI](https://github.com/bretttolbert/moongas-py-mediaserver/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediatunes-svc/actions/workflows/ci.yml) - Python+BlackSheep API service for Moongas hybrid media collections—backend for moongas-mediatunes-web application
@@ -130,7 +130,7 @@ pytest --ignore tests/media
 ```
 
 ## Depedencies
-- [mediascan](https://github.com/bretttolbert/mediascan) (Required for ID3 tag tests) - A simple and fast Go (golang) command-line utility to recursively scan a directory for media files, extract metadata (including ID3v2 tags from both MP3 and M4A files), and save the output in a simple YAML format (e.g. [files.yml](https://github.com/bretttolbert/mediascan/blob/main/out/files.yml), and a Python library with data classes for working with the YAML files output by `mediascan.go`.
+- [moongas-go-mediascan](https://github.com/bretttolbert/moongas-go-mediascan) [![CI](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml) - Golang module to scan media collections and Moongas Yaml metatadata, outputs Moongas database
 
 ## Rules Enforced
 
