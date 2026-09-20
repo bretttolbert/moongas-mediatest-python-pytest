@@ -130,7 +130,9 @@ pytest --ignore tests/media
 ```
 
 ## Depedencies
-- [moongas-go-mediascan](https://github.com/bretttolbert/moongas-go-mediascan) [![CI](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml) - Golang module to scan media collections and Moongas Yaml metatadata, outputs Moongas database
+- [moongas-mediascan-golang](https://github.com/bretttolbert/moongas-mediascan-golang) [![CI](https://github.com/bretttolbert/moongas-mediascan-golang/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediascan-golang/actions/workflows/ci.yml) - Golang module to scan media collections and Moongas Yaml metatadata, outputs Moongas database
+- [moongas-mediascan-python](https://github.com/bretttolbert/moongas-mediascan-python) [![CI](https://github.com/bretttolbert/moongas-mediascan-python/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-mediascan-python/actions/workflows/ci.yml) - Python package for loading Moongas database and Yaml
+
 
 ## Rules Enforced
 
