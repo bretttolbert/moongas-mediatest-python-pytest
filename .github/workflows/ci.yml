@@ -47,7 +47,7 @@ jobs:
       - name: Install Local Python Packages
         run: |
           python -m pip install pandas-stubs
-          python -m pip install --force-reinstall -e ./moongas-mediascan-python
+          python -m pip install -e ./moongas-mediascan-python
           python -m pip install -e .[dev]
 
       - name: Run tests
