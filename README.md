@@ -31,8 +31,9 @@ pip install "git+https://github.com/bretttolbert/moongas-mediatest-python-pytest
 ### (Developer) Clone GitHub repo and install (editable)
 
 ```bash
-git clone git@github.com:bretttolbert/moongas-mediatest-python-pytest.git && cd mediatest
-python -m pip install -e .
+git clone git@github.com:bretttolbert/moongas-mediatest-python-pytest.git
+cd moongas-mediatest-python-pytest
+python -m pip install -e .[dev]
 ```
 
 ## Concept
@@ -115,7 +116,7 @@ assert 'David Crosby & Stephen Stills' == 'Crosby, Stills & Nash'
 
 ## Advanced Usage
 
-Only run filesystem tests (and not the slower files.yml tests):
+Only run filesystem tests (and not the slower files yaml tests):
 
 ```bash
 pytest -k filesystem
