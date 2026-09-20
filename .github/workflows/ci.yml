@@ -48,7 +48,7 @@ jobs:
         run: |
           python -m pip install pandas-stubs
           python -m pip install --force-reinstall -e ./moongas-mediascan-python
-          python -m pip install --force-reinstall -e .[dev]
+          python -m pip install -e .[dev]
 
       - name: Run tests
         run: pytest -vv -s --log-cli-level=DEBUG --ignore tests/media
