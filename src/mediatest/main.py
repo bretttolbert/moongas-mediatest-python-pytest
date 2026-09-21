@@ -57,20 +57,78 @@ class _LogThrottleFilter(logging.Filter):
         return False
 
 
-class _LogThrottlePlugin:
-    """Pytest plugin that throttles live log output to one message per interval."""
+class _OutputThrottlePlugin:
+    """Pytest plugin that throttles live progress output for passing tests.
+
+    Failures, errors, collection problems, and warnings are always shown
+    immediately.  Live logging output is also throttled as a fallback.
+    """
 
     def __init__(self, interval_seconds: float) -> None:
-        self._filter = _LogThrottleFilter(interval_seconds)
+        self._interval_seconds = interval_seconds
+        self._log_filter = _LogThrottleFilter(interval_seconds)
+        self._last_pass_update = 0.0
+        self._suppress_sep = False
+        self._patched_reporter: object | None = None
 
     def pytest_sessionstart(self, session: pytest.Session) -> None:
         root_logger = logging.getLogger()
         for handler in root_logger.handlers:
-            handler.addFilter(self._filter)
+            handler.addFilter(self._log_filter)
         logging_plugin = session.config.pluginmanager.getplugin("logging-plugin")
         log_cli_handler = getattr(logging_plugin, "log_cli_handler", None)
-        if log_cli_handler is not None and self._filter not in log_cli_handler.filters:
-            log_cli_handler.addFilter(self._filter)
+        if (
+            log_cli_handler is not None
+            and self._log_filter not in log_cli_handler.filters
+        ):
+            log_cli_handler.addFilter(self._log_filter)
+        self._patch_write_sep(session.config)
+
+    def _patch_write_sep(self, config: pytest.Config) -> None:
+        """Neutralize pytest-progress's per-teardown counter line.
+
+        pytest-progress calls write_sep("_", msg) after every test teardown,
+        which prints a full "N of M completed, ..." line for each test.  When
+        throttling, make write_sep a no-op for suppressed passes; failures and
+        skips still print normally.  Patched lazily because pytest-progress
+        swaps the terminal reporter instance in its own pytest_configure.
+        """
+        terminal_reporter = config.pluginmanager.getplugin("terminalreporter")
+        if terminal_reporter is None or terminal_reporter is self._patched_reporter:
+            return
+        original_write_sep = terminal_reporter.write_sep
+        plugin = self
+
+        def throttled_write_sep(sep, title=None, **kwargs):
+            if plugin._suppress_sep and sep == "_":
+                return
+            return original_write_sep(sep, title, **kwargs)
+
+        terminal_reporter.write_sep = throttled_write_sep
+        self._patched_reporter = terminal_reporter
+
+    @pytest.hookimpl(tryfirst=True)
+    def pytest_runtest_logreport(self, report: pytest.TestReport) -> None:
+        """Track pass timing and toggle counter suppression for pytest-progress."""
+        if report.when not in ("call", "teardown"):
+            return
+        now = time.monotonic()
+        if report.passed:
+            if now - self._last_pass_update < self._interval_seconds:
+                self._suppress_sep = True
+            else:
+                self._suppress_sep = False
+                self._last_pass_update = now
+        else:
+            self._suppress_sep = False
+
+    @pytest.hookimpl(wrapper=True, tryfirst=True)
+    def pytest_report_teststatus(self, report: pytest.TestReport):
+        """Suppress the per-test letter for fast passing tests."""
+        category, letter, word = yield
+        if category == "passed" and self._suppress_sep:
+            return category, "", ""
+        return category, letter, word
 
 
 def main() -> int:
@@ -258,7 +316,7 @@ def main() -> int:
         "--rootdir",
         str(mediatest_rootdir),
         "-o",
-        "log_cli=true",
+        "log_cli=false",
         f"--log-cli-level={log_level_name}",
         "-q",
         "--show-progress",
@@ -274,7 +332,7 @@ def main() -> int:
     if args.pdb:
         pytest_args.append("--pdb")
     if args.verbose:
-        pytest_args.append("-q")
+        pytest_args.append("-qqq")
     if args.no_capture:
         pytest_args.append("-s")
     if args.exitfirst:
@@ -291,10 +349,10 @@ def main() -> int:
     plugins: list[object] = []
     if config.LOG_THROTTLE_SECONDS is not None and config.LOG_THROTTLE_SECONDS > 0:
         logger.info(
-            "Throttling live pytest log output to 1 message per %.3g second(s)",
+            "Throttling live pytest progress output to 1 update per %.3g second(s)",
             config.LOG_THROTTLE_SECONDS,
         )
-        plugins.append(_LogThrottlePlugin(config.LOG_THROTTLE_SECONDS))
+        plugins.append(_OutputThrottlePlugin(config.LOG_THROTTLE_SECONDS))
     logger.info("Executing pytest with args: %s", pytest_args)
     result = pytest.main(pytest_args, plugins=plugins)
     logger.info("pytest.main() returned %s", result)
