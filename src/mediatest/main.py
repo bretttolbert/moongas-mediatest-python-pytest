@@ -69,7 +69,7 @@ class _OutputThrottlePlugin:
         self._log_filter = _LogThrottleFilter(interval_seconds)
         self._last_pass_update = 0.0
         self._suppress_sep = False
-        self._patched_reporter: object | None = None
+        self._patched_class: type | None = None
 
     def pytest_sessionstart(self, session: pytest.Session) -> None:
         root_logger = logging.getLogger()
@@ -85,27 +85,54 @@ class _OutputThrottlePlugin:
         self._patch_write_sep(session.config)
 
     def _patch_write_sep(self, config: pytest.Config) -> None:
-        """Neutralize pytest-progress's per-teardown counter line.
+        """Neutralize per-test output for suppressed passing tests.
 
         pytest-progress calls write_sep("_", msg) after every test teardown,
-        which prints a full "N of M completed, ..." line for each test.  When
-        throttling, make write_sep a no-op for suppressed passes; failures and
-        skips still print normally.  Patched lazily because pytest-progress
-        swaps the terminal reporter instance in its own pytest_configure.
+        printing a full "N of M completed, ..." line per test.  The base
+        reporter also prints a per-test nodeid via write_fspath_result /
+        write_ensure_prefix even when the status letter is blanked.  When
+        throttling, make all three no-ops for suppressed passes; failures and
+        skips still print normally.  Patched on the reporter *class* (lazily,
+        because pytest-progress swaps the reporter instance in its own
+        pytest_configure) so that no call path can bypass the throttle.
         """
         terminal_reporter = config.pluginmanager.getplugin("terminalreporter")
-        if terminal_reporter is None or terminal_reporter is self._patched_reporter:
+        if terminal_reporter is None:
             return
-        original_write_sep = terminal_reporter.write_sep
+        cls = type(terminal_reporter)
+        if cls is self._patched_class:
+            return
         plugin = self
 
-        def throttled_write_sep(sep, title=None, **kwargs):
+        original_write_sep = cls.write_sep
+
+        def throttled_write_sep(self, sep, title=None, **kwargs):
             if plugin._suppress_sep and sep == "_":
                 return
-            return original_write_sep(sep, title, **kwargs)
+            return original_write_sep(self, sep, title, **kwargs)
 
-        terminal_reporter.write_sep = throttled_write_sep
-        self._patched_reporter = terminal_reporter
+        cls.write_sep = throttled_write_sep
+
+        original_write_fspath_result = cls.write_fspath_result
+
+        def throttled_write_fspath_result(self, nodeid, res, **markup):
+            if plugin._suppress_sep and res in ("", ".", "PASSED"):
+                return
+            return original_write_fspath_result(self, nodeid, res, **markup)
+
+        cls.write_fspath_result = throttled_write_fspath_result
+
+        if hasattr(cls, "write_ensure_prefix"):
+            original_write_ensure_prefix = cls.write_ensure_prefix
+
+            def throttled_write_ensure_prefix(self, prefix, extra="", **kwargs):
+                if plugin._suppress_sep and extra in ("", "PASSED"):
+                    return
+                return original_write_ensure_prefix(self, prefix, extra, **kwargs)
+
+            cls.write_ensure_prefix = throttled_write_ensure_prefix
+
+        self._patched_class = cls
 
     @pytest.hookimpl(tryfirst=True)
     def pytest_runtest_logreport(self, report: pytest.TestReport) -> None:
