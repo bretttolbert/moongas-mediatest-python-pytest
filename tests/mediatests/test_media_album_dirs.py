@@ -3,12 +3,13 @@ from pathlib import Path
 
 from mediascan.utils.path.album_path import AlbumPathBuilder
 
-from mediatest.config import EXTS_MEDIA, LIB_COUNT, LIBS_MEDIA_PATH
+from mediatest.config import EXTS_MEDIA, EXTS_METADATA, LIB_COUNT, LIBS_MEDIA_PATH
 from mediatest.path_utils import get_path_depth, is_dir_with_files
 
 """
 Filesystem tests that validate album directories
 """
+
 
 def get_album_dir_paths(media_lib_path: Path) -> list[Path]:
     ret: set[Path] = set()
@@ -41,6 +42,12 @@ def assert_is_dir_with_media_files(path: Path):
     assert is_dir_with_files(path, EXTS_MEDIA)
 
 
+def assert_is_dir_with_metadata_files(path: Path):
+    """Asserts that album directory contains at least one metadata (.yml) file
+    and that directory does not contain subdirectories"""
+    assert is_dir_with_files(path, EXTS_METADATA)
+
+
 def test_album_dir_name(album_path: Path):
     """Verifies that album directory name doesn't break any naming rules
     e.g. no '.' characters"""
@@ -49,9 +56,14 @@ def test_album_dir_name(album_path: Path):
     assert album_path_obj.valid
 
 
-def test_album_dir_is_not_empty(album_path: Path):
+def test_album_dir_contains_media_files(album_path: Path):
     """Verifies that album directory contains media files"""
     assert_is_dir_with_media_files(album_path)
+
+
+def test_album_dir_contains_metadata_files(album_path: Path):
+    """Verifies that album directory contains metadata (.yml) files"""
+    assert_is_dir_with_metadata_files(album_path)
 
 
 def test_album_cover_exists(album_path: Path):
