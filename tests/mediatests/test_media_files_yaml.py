@@ -172,7 +172,7 @@ def test_mediafile_albumartist_same_for_every_track_in_every_album(
 
 def escape_artist_name(name: str):
     """
-    Escape artist/albumartist name according to rules used for mediaserver artist directory names
+    Escape artist/albumartist name according to rules used for moongas artist directory names
     E.g. "Dr. Dre" becomes "Dr_ Dre"
     """
     return name.replace(".", "_")
