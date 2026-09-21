@@ -4,6 +4,7 @@ from importlib.metadata import version
 import logging
 import platform
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -36,6 +37,40 @@ def version_string() -> str:
         f"pytest {pytest.__version__}, "
         f"python {platform.python_version()})"
     )
+
+
+class _LogThrottleFilter(logging.Filter):
+    """Passes at most one log record per interval; WARNING and above always pass."""
+
+    def __init__(self, interval_seconds: float) -> None:
+        super().__init__()
+        self._interval_seconds = interval_seconds
+        self._last_passed = 0.0
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.levelno >= logging.WARNING:
+            return True
+        now = time.monotonic()
+        if now - self._last_passed >= self._interval_seconds:
+            self._last_passed = now
+            return True
+        return False
+
+
+class _LogThrottlePlugin:
+    """Pytest plugin that throttles live log output to one message per interval."""
+
+    def __init__(self, interval_seconds: float) -> None:
+        self._filter = _LogThrottleFilter(interval_seconds)
+
+    def pytest_sessionstart(self, session: pytest.Session) -> None:
+        root_logger = logging.getLogger()
+        for handler in root_logger.handlers:
+            handler.addFilter(self._filter)
+        logging_plugin = session.config.pluginmanager.getplugin("logging-plugin")
+        log_cli_handler = getattr(logging_plugin, "log_cli_handler", None)
+        if log_cli_handler is not None and self._filter not in log_cli_handler.filters:
+            log_cli_handler.addFilter(self._filter)
 
 
 def main() -> int:
@@ -239,7 +274,7 @@ def main() -> int:
     if args.pdb:
         pytest_args.append("--pdb")
     if args.verbose:
-        pytest_args.append("-v")
+        pytest_args.append("-q")
     if args.no_capture:
         pytest_args.append("-s")
     if args.exitfirst:
@@ -253,8 +288,15 @@ def main() -> int:
     if args.durations_min is not None:
         pytest_args.append(f"--durations-min={args.durations_min}")
     pytest_args.extend(additional_pytest_args)
+    plugins: list[object] = []
+    if config.LOG_THROTTLE_SECONDS is not None and config.LOG_THROTTLE_SECONDS > 0:
+        logger.info(
+            "Throttling live pytest log output to 1 message per %.3g second(s)",
+            config.LOG_THROTTLE_SECONDS,
+        )
+        plugins.append(_LogThrottlePlugin(config.LOG_THROTTLE_SECONDS))
     logger.info("Executing pytest with args: %s", pytest_args)
-    result = pytest.main(pytest_args)
+    result = pytest.main(pytest_args, plugins=plugins)
     logger.info("pytest.main() returned %s", result)
     logger.debug("main() exiting with result=%s", result)
 

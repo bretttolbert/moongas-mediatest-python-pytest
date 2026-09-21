@@ -36,6 +36,7 @@ class MediaTestConfig(YAMLWizard):
 
     mediatest_rootdir: Optional[str] = None
     media_rootdir: Optional[str] = None
+    log_throttle_seconds: Optional[float] = None
 
 
 class MediaTestConfigUtil:
@@ -106,6 +107,7 @@ def configure(path: Path | None = None) -> None:
     global LIB_GENRES_MODE_BLACKLIST, LIB_COUNT, LIBS_MEDIA_PATH
     global LIBS_EXPECTED_MEDIA_COUNT, LIBS_EXPECTED_LRC_COUNT
     global LIBS_TOTAL_FILESIZE_LIMIT_GB, LIBS_EXPECTED_FILESIZE_GB, LIBS_GENRES
+    global LOG_THROTTLE_SECONDS
 
     logger.info("configure() starting; path=%s", path)
     try:
@@ -127,6 +129,7 @@ def configure(path: Path | None = None) -> None:
     ALLOWED_EXTS = EXTS_MEDIA + EXTS_ART + EXTS_LYRICS + EXTS_METADATA + EXTS_EXTRA
     LIB_GENRES_MODE_BLACKLIST = CONFIG.lib_genres_mode_blacklist
     LIB_COUNT = len(CONFIG.libs)
+    LOG_THROTTLE_SECONDS = CONFIG.log_throttle_seconds
 
     media_rootdir = (
         Path(CONFIG.media_rootdir).expanduser().resolve()
